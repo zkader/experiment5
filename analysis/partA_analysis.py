@@ -50,7 +50,7 @@ def analyzeAllSprings(filenames):
         k.append(currK)
         k_error.append(currK_error)
     
-    file = open('parta_springs_results', 'w')
+    file = open('parta_springs_results.txt', 'w')
     file.write('Spring\tk (N/m)\n')
     for s in range(len(k)):
         file.write('{0}\t{1}+/-{2}\n'.format(s+1,k[s],k_error[s]))
@@ -59,3 +59,18 @@ def analyzeAllSprings(filenames):
 filenames = ['parta_s1.txt', 'parta_s2.txt',
              'parta_s3.txt', 'parta_s4.txt']
 analyzeAllSprings(filenames)
+
+
+def readDataPendula(filename):
+    file = open(filename, 'r')
+    file.readline()
+    p1 = map(float, file.readline().split())
+    n1, m1,L_t1,L_b1,l1_1,l2_1,l3_1,l4_1,l_p = p1
+    L1_1 = l_p - 0.5*(L_t1+L_b1)
+    l1_1,l2_1,l3_1,l4_1 = l_p-l1_1, l_p-l2_1, l_p-l3_1, l_p-l4_1
+    
+    p2 = map(float, file.readline().split())
+    n2, m2,L_t2,L_b2,l1_2,l2_2,l3_2,l4_2,l_p = p1
+    L1_2 = l_p - 0.5*(L_t2+L_b2)
+    l1_2,l2_2,l3_2,l4_2 = l_p-l1_2, l_p-l2_2, l_p-l3_2, l_p-l4_2
+    file.close()
