@@ -65,7 +65,14 @@ def readpositions():
 def FFTdata(filename):
     samp_t = 1/5000.
     t,p1,p2 = readData(filename)
-
+##    ti = 20
+##    for i in range(len(t)):
+##        if t[i] > ti:
+##            tind = i
+##            break
+##    t = t[0:tind+1]
+##    p1 = p1[0:tind+1]
+##    p2 = p2[0:tind+1]
     ferr = 1/(2*t[len(t)-1])
     Fk1 = fft.fft(p1,norm="ortho") #Fourier coeff
     nf = fft.fftfreq(len(t),samp_t) #natural freq
@@ -154,7 +161,7 @@ def AnalyzeData(sval,lval,mode,saveplot=0):
         xlim([-4*pi,4*pi])
     xlabel('Angular Frequency $\omega$ [rad/s]')
     ylim([0.0001,1])
-    ylabel('Weights [arb. units]')
+    ylabel('Amplitude [arb. units]')
     legend()
     if saveplot == 0:
         return frq1,frq2,frqerr,k,ke,lv,lverr
@@ -272,6 +279,6 @@ def PlotBFigs(location=0,spring=0,mode=1,sfig=0):
 
 #PlotBFigs(1,0)
 #readpositions()
-#writefiles()
-PlotData(1,1,1,2)
-#AnalyzeData(1,1,1)            
+#writefiles(1)
+#PlotData(1,1,1,2)
+AnalyzeData(3,1,0,2)            
