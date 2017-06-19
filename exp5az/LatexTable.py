@@ -1,10 +1,12 @@
-from math import log10,floor
+from math import log10,floor,sqrt
 
 def sigfig(val,err):
     return round(val,-int(floor(log10(abs(err)))))
 
 def latexSI(xval,xerr,unit):
-    if log10(abs(xerr)) < 0:
+    if xerr == 0:
+        return '\\SI{'+str(int(xval))+'}{'+unit+'}'
+    elif log10(abs(xerr)) < 0:
         return '\\SI{'+str(xval)+'('+str(xerr)[-1]+')}{'+unit+'}'
     else:
         return '\\SI{'+str(int(xval))+'('+str(int(xerr))+')}{'+unit+'}'
@@ -34,18 +36,42 @@ def printLaxtexTable(fname,val_ind,err_ind,unit):
                         dstr += latexSI(sigfig(arr[val_ind[m]][l],arr[err_ind[m]][l]),sigfig(arr[err_ind[m]][l],arr[err_ind[m]][l]),unit[m]) + ' & '
             elif k not in val_ind and k not in err_ind:
                 dstr += latexSI(arr[k][l],0,"") + ' & '
-        print dstr +' \\\\\n'
+        print dstr +'\\\\\n'
     return arr
 
+def experr(xval,xerr,expval):
+    a = xval**(expval)
+    b = abs(expval)*xerr*(xval**(expval-1))
+    print latexSI(sigfig(a,b),sigfig(b,b),"")
+    return
+
+def colstats(fname):
+    file = open(fname,'r')
+    for line in file:
+        a = map(float,line.split())
+    avg = sum(a)/len(a)
+    stdv = 0
+    for i in range(len(a)):
+        stdv += (a[i]-avg)**2
+    stdv = sqrt(stdv/len(a))
+    return avg,stdv   
+a,b = colstats('partb_omega_natural.txt')
+print latexSI(sigfig(a,b),sigfig(b,b),"")
+
 #mapping of file
-##bvalind = [3,4,6,8]
-##bvalerr = [5,5,7,9]
-##unitmap = ["rad/s","rad/s","N/m","m"]
-##printLaxtexTable('partb_all_results.txt',bvalind,bvalerr,unitmap)
+#bvalind = [3,4,6,8,10]
+#bvalerr = [5,5,7,9,11]
+#unitmap = ["","","","",""]
+#printLaxtexTable('partb_all_results.txt',bvalind,bvalerr,unitmap)
+
+#bvalind = [1]
+#bvalerr = [2]
+#unitmap = ["1","rad/s","N/m","m"]
+#printLaxtexTable('partb_all_results.txt',bvalind,bvalerr,unitmap)
 
 b1 = [0,2]
 be = [1,3]
-ut = ["?","rad^{2}/s^{2}"]
-arr1 = printLaxtexTable('linresults_partb_s0_l1_m1.txt',b1,be,ut)
+ut = ["",""]
+arr1 = printLaxtexTable('linresults_partb_s1_l0_m1.txt',b1,be,ut)
 #print sigfig(0.036455,0.005662)
 #print sigfig(0.005662,0.005662)

@@ -28,7 +28,8 @@ def multerr(x1,x1e):
     for i in range(len(x1)):
         ans += (x1e[i]/x1[i])**2
         mult *= x1[i]
-    return mult*ans
+    return mult*sqrt(ans)
+
 
 def readpositions():
     file = open('parta_pendulum.txt', 'r')
@@ -114,7 +115,7 @@ def PlotData(sval,lval,mode,saveplot=0):
     xlim([t[0],t[len(t)-1]])
     xlabel('Time $t$ [s]')
     ylabel('Signal Amplitude [V]')
-    title('Signal of %s Mode with Spring # %s at Location # %s'%(st,sval,lval))
+    #title('Signal of %s Mode with Spring # %s at Location # %s'%(st,sval,lval))
     legend()
     if saveplot == 0:
         return
@@ -138,10 +139,12 @@ def AnalyzeData(sval,lval,mode,saveplot=0):
         smode = 'e'
         st = 'Even'
         expectf = sqrt(9.81/L)
+        expectfer = (0.5*(multerr([1/L,9.81],[conerr[1]/(L*L),0])) /(expectf))
     elif mode%2 != 0:
         smode = 'o'
         st = 'Odd'
-        expectf = sqrt(9.81/L + 2*k*lv*lv/(m*L*L))
+        expectf = sqrt(9.81/L + 2*k*lv*lv/(m*L*L))        
+        expectfer =  (0.5/expectf)*adderr([multerr([1/L,9.81],[conerr[1]/(L*L),0]),multerr([2,k,lv,lv,1/m,1/L,1/L],[0,ke,lverr,lverr,conerr[0]/(m*m),conerr[1]/(L*L),conerr[1]/(L*L)])])
         expectf1 = sqrt(9.81/L) + k*lv*lv/(sqrt(9.81/L)*m*L*L)
     fname = 'partb_s' + str(sval) + '_l' + str(lval) + '_' + smode + '.txt'
     angf,Fc1,Fc2,frqerr = FFTdata(fname)
@@ -155,31 +158,31 @@ def AnalyzeData(sval,lval,mode,saveplot=0):
     clf()
     plot(angf,abFF1,label='Pendulum 1')
     plot(angf,abFF2,label='Pendulum 2')
-    if abs(4*pi) < abs(expectf):
-        xlim([-2*pi,2*pi])
+    if abs(frq1/2*pi) > 1:
+        xlim([-3*pi,3*pi])
     else:
-        xlim([-4*pi,4*pi])
+        xlim([-2*pi,2*pi])
     xlabel('Angular Frequency $\omega$ [rad/s]')
     ylim([0.0001,1])
     ylabel('Amplitude [arb. units]')
     legend()
     if saveplot == 0:
-        return frq1,frq2,frqerr,k,ke,lv,lverr
+        return frq1,frq2,frqerr,k,ke,lv,lverr,expectf,expectfer
     elif saveplot == 1:
         savefig('PartBPlots/'+fname.replace('.txt','.png'))
     else:
         show()
-    return frq1,frq2,frqerr,k,ke,lv,lverr
+    return frq1,frq2,frqerr,k,ke,lv,lverr,expectf,expectfer
 
 def writefiles(createplots=0):
     outfile = file('partb_all_results.txt','w')
-    outfile.write('spring\tloc\tmode\tFreq_P1\tFreq_P2\tFreq_err\tspring_const\tspring_consterr\tloc_val\tloc_err\n')    
+    outfile.write('spring\tloc\tmode\tFreq_P1\tFreq_P2\tFreq_err\tspring_const\tspring_consterr\tloc_val\tloc_err\texpct_Freq\texpct_Freq_err\n')    
     for i in range(1,5):
         for j in range(1,5):
             for k in range(0,2):
-                fp1,fp2,fe,spr,spre,le,lerr = AnalyzeData(i,j,k,createplots)
+                fp1,fp2,fe,spr,spre,le,lerr,efr,efrer = AnalyzeData(i,j,k,createplots)
                 PlotData(i,j,k,createplots)
-                outfile.write('\t'.join(map(str,[i,j,k,fp1,fp2,fe,spr,spre,le,lerr])) +'\n')
+                outfile.write('\t'.join(map(str,[i,j,k,fp1,fp2,fe,spr,spre,le,lerr,efr,efrer])) +'\n')
     outfile.close()
     return
 
@@ -278,7 +281,10 @@ def PlotBFigs(location=0,spring=0,mode=1,sfig=0):
     return
 
 #PlotBFigs(1,0)
-#readpositions()
+a1,a2 =readpositions()
+print a1
 #writefiles(1)
+#PlotBFigs(1,0,1,2)
+#PlotBFigs(0,1,1,2)
 #PlotData(1,1,1,2)
-AnalyzeData(3,1,0,2)            
+#AnalyzeData(3,1,0,2)            
