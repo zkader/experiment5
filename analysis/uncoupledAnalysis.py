@@ -31,20 +31,20 @@ def fourierTransform(t,p1,p2):
 
 # assume that the side peaks are at x0-x1 and x0+x1
 # just three gaussians A*exp(-a*(x-x0)**2)
-def fitTriplePeak(xData, x0,x1, a0,a1, A0,A1_l,A1_r, C):
+def fitTriplePeak(xData, x0,x1,x2, a0,a1, A0,A1_l,A1_r, C):
     return map(lambda x: A0*exp(-a0*(x-x0)**2)+
                          A1_r*exp(-a1*(x-x0+x1)**2)+
-                         A1_l*exp(-a1*(x-x0-x1)**2)+C, xData)
+                         A1_l*exp(-a1*(x-x0-x2)**2)+C, xData)
 
 def fitFFT(freq, f, p0):
     params, cov = curve_fit(fitTriplePeak, freq,abs(f), p0=p0)
     errors = sqrt(diag(cov))
     
-    frequencies = params[:2]
-    errors_freq = errors[:2]
+    frequencies = params[:3]
+    errors_freq = errors[:3]
     
     return frequencies, errors_freq
 
 # initial parameters determined by looking at plots
-p0_1=[0,0.67, 6900,2400, 133063,51000,51000, 3]
-p0_2=[0,0.67, 6000,3080, 64400,54000,54000, 3]
+p0_1=[0,0.67,0.67, 6900,2400, 133063,51000,51000, 3]
+p0_2=[0,0.67,0.67, 6000,3080, 64400,54000,54000, 3]
